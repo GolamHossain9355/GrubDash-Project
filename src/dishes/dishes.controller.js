@@ -11,6 +11,7 @@ const nextId = require("../utils/nextId");
 function propertyValidation(req, res, next) {
   const { dishId } = req.params;
   const { data: { name, description, price, image_url, id } = {} } = req.body;
+  res.locals.newInputs = { name, description, price, image_url };
 
   if (!name || name.length === 0) {
     return next({ status: 400, message: "Dish must include a name" });
@@ -40,30 +41,8 @@ function propertyValidation(req, res, next) {
       message: `Dish id does not match route id. Dish: ${id}, Route: ${dishId}`,
     });
   }
-
   next();
 }
-
-const list = (req, res, next) => {
-  res.status(200).json({ data: dishes });
-};
-
-const create = (req, res, next) => {
-  const {
-    data: { name, description, price, image_url },
-  } = req.body;
-
-  const newData = {
-    id: nextId(),
-    name,
-    description,
-    price,
-    image_url,
-  };
-
-  dishes.push(newData);
-  res.status(201).json({ data: newData });
-};
 
 function dishExists(req, res, next) {
   const { dishId } = req.params;
@@ -72,27 +51,38 @@ function dishExists(req, res, next) {
   res.locals.foundDish = foundDish;
 
   if (foundDish) return next();
-
   next({
     status: 404,
     message: `Dish does not exist: ${dishId}`,
   });
 }
 
-const read = (req, res, next) => {
+const list = (_req, res, _next) => {
+  res.status(200).json({ data: dishes });
+};
+
+const create = (_req, res, _next) => {
+  const newInputs = res.locals.newInputs;
+  const newData = {
+    id: nextId(),
+    ...newInputs,
+  };
+  dishes.push(newData);
+  res.status(201).json({ data: newData });
+};
+
+const read = (_req, res, _next) => {
   res.status(200).json({ data: res.locals.foundDish });
 };
 
-const update = (req, res, next) => {
-  const {
-    data: { name, description, price, image_url },
-  } = req.body;
+const update = (_req, res, _next) => {
+  const newInputs = res.locals.newInputs;
 
   const dishFound = res.locals.foundDish;
-  dishFound.name = name;
-  dishFound.description = description;
-  dishFound.price = price;
-  dishFound.image_url = image_url;
+  dishFound.name = newInputs.name;
+  dishFound.description = newInputs.description;
+  dishFound.price = newInputs.price;
+  dishFound.image_url = newInputs.image_url;
 
   res.status(200).json({ data: dishFound });
 };

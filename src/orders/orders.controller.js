@@ -8,10 +8,12 @@ const nextId = require("../utils/nextId");
 
 // TODO: Implement the /orders handlers needed to make the tests pass
 
+// Property validator
 function validateOrderProperties(req, res, next) {
   const { orderId } = req.params;
   const { data: { deliverTo, mobileNumber, dishes, id, status } = {} } =
     req.body;
+  res.locals.newInputs = { deliverTo, mobileNumber, dishes };
 
   if (!deliverTo || deliverTo.length === 0) {
     return next({ status: 400, message: "Order must include a deliverTo" });
@@ -65,9 +67,10 @@ function validateOrderProperties(req, res, next) {
       });
     }
   }
-
   next();
 }
+
+// Order exist handler
 
 function orderExists(req, res, next) {
   const { orderId } = req.params;
@@ -76,47 +79,39 @@ function orderExists(req, res, next) {
   res.locals.foundOrder = foundOrder;
 
   if (foundOrder) return next();
-
   next({
     status: 404,
     message: `Order does not exist ${orderId}`,
   });
 }
 
-const list = (req, res, next) => {
+// controller functions
+
+const list = (_req, res, _next) => {
   res.status(200).json({ data: orders });
 };
 
-const create = (req, res, next) => {
-  const {
-    data: { deliverTo, mobileNumber, dishes },
-  } = req.body;
-
+const create = (_req, res, _next) => {
+  const newInputs = res.locals.newInputs;
   const newData = {
     id: nextId(),
-    deliverTo,
-    mobileNumber,
-    dishes,
+    ...newInputs,
   };
-
   orders.push(newData);
   res.status(201).json({ data: newData });
 };
 
-const read = (req, res, next) => {
+const read = (_req, res, _next) => {
   res.status(200).json({ data: res.locals.foundOrder });
 };
 
-const update = (req, res, next) => {
-  const {
-    data: { deliverTo, mobileNumber, status, dishes },
-  } = req.body;
+const update = (_req, res, _next) => {
+  const newInputs = res.locals.newInputs;
 
   const foundOrder = res.locals.foundOrder;
-  foundOrder.deliverTo = deliverTo;
-  foundOrder.mobileNumber = mobileNumber;
-  foundOrder.status = status;
-  foundOrder.dishes = dishes;
+  foundOrder.deliverTo = newInputs.deliverTo;
+  foundOrder.mobileNumber = newInputs.mobileNumber;
+  foundOrder.dishes = newInputs.dishes;
 
   res.status(200).json({ data: foundOrder });
 };
@@ -135,7 +130,6 @@ const destroy = (req, res, next) => {
   const foundIndex = orders.findIndex(
     (order) => Number(order.id) === Number(orderId)
   );
-
   orders.splice(foundIndex, 1);
   res.sendStatus(204);
 };
