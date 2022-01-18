@@ -8,6 +8,8 @@ const nextId = require("../utils/nextId");
 
 // TODO: Implement the /dishes handlers needed to make the tests pass
 
+// Property validator
+
 function propertyValidation(req, res, next) {
   const { dishId } = req.params;
   const { data: { name, description, price, image_url, id } = {} } = req.body;
@@ -43,6 +45,8 @@ function propertyValidation(req, res, next) {
   }
   next();
 }
+
+// Dish exists handler 
 
 function dishExists(req, res, next) {
   const { dishId } = req.params;
