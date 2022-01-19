@@ -85,6 +85,19 @@ function orderExists(req, res, next) {
   });
 }
 
+function validateFoundOrderStatus(req, res, next) {
+  const foundOrder = res.locals.foundOrder;
+
+  if (foundOrder.status !== "pending") {
+    return next({
+      status: 400,
+      message: "An order cannot be deleted unless it is pending",
+    });
+  }
+
+  next();
+}
+
 // controller functions
 
 const list = (_req, res, _next) => {
@@ -116,17 +129,8 @@ const update = (_req, res, _next) => {
   res.status(200).json({ data: foundOrder });
 };
 
-const destroy = (req, res, next) => {
+const destroy = (req, res, _next) => {
   const { orderId } = req.params;
-  const foundOrder = res.locals.foundOrder;
-
-  if (foundOrder.status !== "pending") {
-    return next({
-      status: 400,
-      message: "An order cannot be deleted unless it is pending",
-    });
-  }
-
   const foundIndex = orders.findIndex(
     (order) => Number(order.id) === Number(orderId)
   );
@@ -139,5 +143,5 @@ module.exports = {
   create: [validateOrderProperties, create],
   read: [orderExists, read],
   update: [orderExists, validateOrderProperties, update],
-  delete: [orderExists, destroy],
+  delete: [orderExists, validateFoundOrderStatus, destroy],
 };
