@@ -100,11 +100,11 @@ function validateFoundOrderStatus(req, res, next) {
 
 // controller functions
 
-const list = (_req, res, _next) => {
+function list(_req, res, _next) {
   res.status(200).json({ data: orders });
 };
 
-const create = (_req, res, _next) => {
+function create (_req, res, _next) {
   const newInputs = res.locals.newInputs;
   const newData = {
     id: nextId(),
@@ -114,11 +114,11 @@ const create = (_req, res, _next) => {
   res.status(201).json({ data: newData });
 };
 
-const read = (_req, res, _next) => {
+function read(_req, res, _next) {
   res.status(200).json({ data: res.locals.foundOrder });
 };
 
-const update = (_req, res, _next) => {
+function update(_req, res, _next) {
   const newInputs = res.locals.newInputs;
 
   const foundOrder = res.locals.foundOrder;
@@ -129,7 +129,7 @@ const update = (_req, res, _next) => {
   res.status(200).json({ data: foundOrder });
 };
 
-const destroy = (req, res, _next) => {
+function destroy(req, res, _next) {
   const { orderId } = req.params;
   const foundIndex = orders.findIndex(
     (order) => Number(order.id) === Number(orderId)

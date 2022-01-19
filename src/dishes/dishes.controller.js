@@ -61,11 +61,11 @@ function dishExists(req, res, next) {
   });
 }
 
-const list = (_req, res, _next) => {
+function list(_req, res, _next) {
   res.status(200).json({ data: dishes });
 };
 
-const create = (_req, res, _next) => {
+function create(_req, res, _next) {
   const newInputs = res.locals.newInputs;
   const newData = {
     id: nextId(),
@@ -75,11 +75,11 @@ const create = (_req, res, _next) => {
   res.status(201).json({ data: newData });
 };
 
-const read = (_req, res, _next) => {
+function read(_req, res, _next) {
   res.status(200).json({ data: res.locals.foundDish });
 };
 
-const update = (_req, res, _next) => {
+function update(_req, res, _next) {
   const newInputs = res.locals.newInputs;
 
   const dishFound = res.locals.foundDish;
